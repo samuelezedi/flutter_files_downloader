@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
+      title: 'FileDownloader',
       theme: ThemeData(
 
         primarySwatch: Colors.blue,
@@ -23,9 +23,7 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
-
-
-
+  
   final String title;
 
   @override
@@ -45,17 +43,15 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> downloadFile() async {
     textFieldFocus.unfocus();
-    setState(() {
-      downloading = true;
-    });
+    
     Dio dio = Dio();
-
     try{
       var dir = await getApplicationDocumentsDirectory();
       var path = "${dir.path}/downloads/${fileName.text}.${fileType.text}";
 
       await dio.download(url.text, path, onReceiveProgress: (rec,total){
         setState(() {
+          downloading = true;
           progressString = ((rec/total) * 100).toStringAsFixed(0) + " %";
         });
       });
@@ -101,72 +97,72 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Builder(
         builder: (context) {
           this.context = context;
-          return Container(
-            margin: EdgeInsets.all(20),
-            child: Form(
-              key: formKey,
-              child: Column(
-                children: <Widget>[
-                  Text('Enter link below'),
+          return SingleChildScrollView(
+            child: Container(
+              margin: EdgeInsets.all(20),
+              child: Form(
+                key: formKey,
+                child: Column(
+                  children: <Widget>[
+                    Text('Enter link below'),
+                      TextFormField(
+                        controller: url,
+                        keyboardType: TextInputType.url,
+                        validator: (value){
+                          if(value.trim() == ""){
+                            return 'Please enter a valid url';
+                          } else {
+                            return null;
+                          }
+                        },
+                        decoration: InputDecoration(
+                          labelText: 'Link',
+                          hintText: 'Enter link'
+                        ),
+
+                    ),
                     TextFormField(
-                      focusNode: textFieldFocus,
-                      controller: url,
-                      keyboardType: TextInputType.url,
+                      controller: fileName,
+                      keyboardType: TextInputType.text,
                       validator: (value){
                         if(value.trim() == ""){
-                          return 'Please enter a valid url';
+                          return 'Please enter a name';
                         } else {
                           return null;
                         }
                       },
                       decoration: InputDecoration(
-                        labelText: 'Link',
-                        hintText: 'Enter link'
+                          labelText: 'File name',
+                          hintText: 'Enter name'
                       ),
 
-                  ),
-                  TextFormField(
-                    focusNode: textFieldFocus,
-                    controller: fileName,
-                    keyboardType: TextInputType.text,
-                    validator: (value){
-                      if(value.trim() == ""){
-                        return 'Please enter a name';
-                      } else {
-                        return null;
-                      }
-                    },
-                    decoration: InputDecoration(
-                        labelText: 'File name',
-                        hintText: 'Enter name'
                     ),
+                    TextFormField(
+                      focusNode: textFieldFocus,
+                      controller: fileType,
+                      keyboardType: TextInputType.text,
+                      validator: (value){
+                        if(value.trim() == "" && (value.trim() != 'jpeg' || value.trim() != 'png' || value.trim() != 'jpg')){
+                          return 'Please enter a valid file type';
+                        } else {
+                          return null;
+                        }
+                      },
+                      decoration: InputDecoration(
+                          labelText: 'Type',
+                          hintText: 'accepts. jpg, pdf, jpeg'
+                      ),
 
-                  ),
-                  TextFormField(
-                    focusNode: textFieldFocus,
-                    controller: fileType,
-                    keyboardType: TextInputType.text,
-                    validator: (value){
-                      if(value.trim() == "" && (value.trim() != 'jpeg' || value.trim() != 'png' || value.trim() != 'jpg')){
-                        return 'Please enter a valid file type';
-                      } else {
-                        return null;
-                      }
-                    },
-                    decoration: InputDecoration(
-                        labelText: 'Type',
-                        hintText: 'accepts. jpg, pdf, jpeg'
                     ),
-
-                  ),
-                  SizedBox(height: 20,),
-                  downloading ? ListTile(
-                        leading : CircularProgressIndicator(),
-                        title: Text(progressString,style: TextStyle(color: Colors.black),)
-                  ) : Offstage(),
-                ],
-              ),
-            )
+                    SizedBox(height: 20,),
+                    downloading ? ListTile(
+                          leading : CircularProgressIndicator(),
+                          title: Text(progressString,style: TextStyle(color: Colors.black),)
+                    ) : Offstage(),
+                  ],
+                ),
+              )
+            ),
           );
         }
       ),
