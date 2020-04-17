@@ -13,7 +13,6 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'FileDownloader',
       theme: ThemeData(
-
         primarySwatch: Colors.blue,
       ),
       home: MyHomePage(title: 'Flutter Demo Home Page'),
@@ -23,7 +22,7 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
-  
+
   final String title;
 
   @override
@@ -43,20 +42,20 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> downloadFile() async {
     textFieldFocus.unfocus();
-    
+
     Dio dio = Dio();
-    try{
+    try {
       var dir = await getApplicationDocumentsDirectory();
       var path = "${dir.path}/downloads/${fileName.text}.${fileType.text}";
 
-      await dio.download(url.text, path, onReceiveProgress: (rec,total){
+      await dio.download(url.text, path, onReceiveProgress: (rec, total) {
         setState(() {
           downloading = true;
-          progressString = ((rec/total) * 100).toStringAsFixed(0) + " %";
+          progressString = ((rec / total) * 100).toStringAsFixed(0) + " %";
         });
       });
-    successful(path);
-    }catch(e) {
+      successful(path);
+    } catch (e) {
       print(e);
     }
     setState(() {
@@ -66,19 +65,14 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   successful(path) {
-    return Scaffold.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Download Succesful, you can find your downloaded file here ${path}',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 15,
-              color: Colors.white
-            ),
-          ),
-          duration: Duration(seconds: 20),
-        )
-    );
+    return Scaffold.of(context).showSnackBar(SnackBar(
+      content: Text(
+        'Download Succesful, you can find your downloaded file here ${path}',
+        textAlign: TextAlign.center,
+        style: TextStyle(fontSize: 15, color: Colors.white),
+      ),
+      duration: Duration(seconds: 20),
+    ));
   }
 
   @override
@@ -89,60 +83,55 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         title: Text('File Downloader'),
       ),
-      body: Builder(
-        builder: (context) {
-          this.context = context;
-          return SingleChildScrollView(
-            child: Container(
+      body: Builder(builder: (context) {
+        this.context = context;
+        return SingleChildScrollView(
+          child: Container(
               margin: EdgeInsets.all(20),
               child: Form(
                 key: formKey,
                 child: Column(
                   children: <Widget>[
                     Text('Enter link below'),
-                      TextFormField(
-                        controller: url,
-                        keyboardType: TextInputType.url,
-                        validator: (value){
-                          if(value.trim() == ""){
-                            return 'Please enter a valid url';
-                          } else {
-                            return null;
-                          }
-                        },
-                        decoration: InputDecoration(
-                          labelText: 'Link',
-                          hintText: 'Enter link'
-                        ),
-
+                    TextFormField(
+                      controller: url,
+                      keyboardType: TextInputType.url,
+                      validator: (value) {
+                        if (value.trim() == "") {
+                          return 'Please enter a valid url';
+                        } else {
+                          return null;
+                        }
+                      },
+                      decoration: InputDecoration(
+                          labelText: 'Link', hintText: 'Enter link'),
                     ),
                     TextFormField(
                       controller: fileName,
                       keyboardType: TextInputType.text,
-                      validator: (value){
-                        if(value.trim() == ""){
+                      validator: (value) {
+                        if (value.trim() == "") {
                           return 'Please enter a name';
                         } else {
                           return null;
                         }
                       },
                       decoration: InputDecoration(
-                          labelText: 'File name',
-                          hintText: 'Enter name'
-                      ),
-
+                          labelText: 'File name', hintText: 'Enter name'),
                     ),
                     TextFormField(
                       focusNode: textFieldFocus,
                       controller: fileType,
                       keyboardType: TextInputType.text,
-                      validator: (value){
-                        if(value.trim() == "" && (value.trim() != 'jpeg' || value.trim() != 'png' || value.trim() != 'jpg')){
+                      validator: (value) {
+                        if (value.trim() == "" &&
+                            (value.trim() != 'jpeg' ||
+                                value.trim() != 'png' ||
+                                value.trim() != 'jpg')) {
                           return 'Please enter a valid file type';
                         } else {
                           return null;
@@ -150,25 +139,27 @@ class _MyHomePageState extends State<MyHomePage> {
                       },
                       decoration: InputDecoration(
                           labelText: 'Type',
-                          hintText: 'accepts. jpg, pdf, jpeg'
-                      ),
-
+                          hintText: 'accepts. jpg, pdf, jpeg'),
                     ),
-                    SizedBox(height: 20,),
-                    downloading ? ListTile(
-                          leading : CircularProgressIndicator(),
-                          title: Text(progressString,style: TextStyle(color: Colors.black),)
-                    ) : Offstage(),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    downloading
+                        ? ListTile(
+                            leading: CircularProgressIndicator(),
+                            title: Text(
+                              progressString,
+                              style: TextStyle(color: Colors.black),
+                            ))
+                        : Offstage(),
                   ],
                 ),
-              )
-            ),
-          );
-        }
-      ),
+              )),
+        );
+      }),
       floatingActionButton: FloatingActionButton(
-        onPressed: (){
-          if(formKey.currentState.validate()){
+        onPressed: () {
+          if (formKey.currentState.validate()) {
             formKey.currentState.save();
             downloadFile();
           }
@@ -178,5 +169,4 @@ class _MyHomePageState extends State<MyHomePage> {
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
-
 }
