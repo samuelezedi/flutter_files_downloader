@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:simple_permissions/simple_permissions.dart';
 
 void main() => runApp(MyApp());
 
@@ -37,6 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final formKey = GlobalKey<FormState>();
   FocusNode textFieldFocus = FocusNode();
 
+
   bool downloading = false;
   String progressString = "";
 
@@ -45,7 +49,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
     Dio dio = Dio();
     try {
-      var dir = await getApplicationDocumentsDirectory();
+
+        final dir = Platform.isAndroid
+            ? await getExternalStorageDirectory()
+            : await getApplicationDocumentsDirectory();
+
+
       var path = "${dir.path}/downloads/${fileName.text}.${fileType.text}";
 
       await dio.download(url.text, path, onReceiveProgress: (rec, total) {
@@ -62,6 +71,24 @@ class _MyHomePageState extends State<MyHomePage> {
       downloading = false;
       progressString = "";
     });
+  }
+
+  _checkPermissions() async {
+    if (Platform.isAndroid) {
+      SimplePermissions
+          .checkPermission(Permission.WriteExternalStorage)
+          .then((checkOkay) {
+        if (!checkOkay) {
+          SimplePermissions
+              .requestPermission(Permission.WriteExternalStorage)
+              .then((okDone) {
+            print(okDone.toString());
+          });
+        } else {
+
+        }
+      });
+    }
   }
 
   successful(path) {

@@ -26,6 +26,7 @@ dependencies:
   cupertino_icons: ^0.1.2
   dio: ^3.0.9
   path_provider: ^1.6.5
+  simple_permissions: ^0.1.9
 
 dev_dependencies:
   flutter_test:
